@@ -170,12 +170,14 @@ textarea {
 }
 
 textarea:focus,
-.primary-button:focus-visible {
+.primary-button:focus-visible,
+.secondary-button:focus-visible {
   outline: 3px solid rgba(31, 120, 117, 0.22);
   outline-offset: 2px;
 }
 
-.primary-button {
+.primary-button,
+.secondary-button {
   display: inline-flex;
   width: 100%;
   min-height: 48px;
@@ -185,10 +187,19 @@ textarea:focus,
   border: 0;
   border-radius: 8px;
   margin-top: 16px;
-  background: #1f7875;
-  color: white;
   font-weight: 900;
   cursor: pointer;
+}
+
+.primary-button {
+  background: #1f7875;
+  color: white;
+}
+
+.secondary-button {
+  border: 1px solid #c9d7df;
+  background: #ffffff;
+  color: #244257;
 }
 
 .primary-button:disabled {

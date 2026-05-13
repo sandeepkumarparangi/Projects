@@ -19,6 +19,23 @@ type Analysis = {
 
 const apiBase = import.meta.env.VITE_API_BASE_URL ?? '';
 
+const sampleResumeText = `Summary
+Full stack Java developer with Spring Boot, React, REST API, SQL, Docker, and CI/CD experience.
+
+Experience
+Built Spring Boot microservices and React dashboards for internal operations.
+Improved API response time by 35% through query optimization and caching.
+Automated deployments with GitHub Actions and Docker.
+
+Skills
+Java, Spring Boot, React, TypeScript, SQL, REST, Docker, testing, agile
+`;
+
+const sampleJobDescription = `We are hiring a Full Stack Java Developer to build APIs and internal dashboards.
+The role needs Java, Spring Boot, React, TypeScript, REST APIs, SQL, Docker,
+GitHub Actions, cloud deployment experience, testing, and secure coding practices.
+Nice to have: observability, PostgreSQL, OAuth, and performance tuning.`;
+
 function App() {
   const [resume, setResume] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState('');
@@ -73,6 +90,14 @@ function App() {
     }
   }
 
+  function loadSampleAnalysis() {
+    setResume(new File([sampleResumeText], 'sample-resume.txt', { type: 'text/plain' }));
+    setJobDescription(sampleJobDescription);
+    setAnalysis(null);
+    setError('');
+    setElapsedMs(null);
+  }
+
   return (
     <main className="shell">
       <section className="workspace">
@@ -109,6 +134,11 @@ function App() {
                 placeholder="Paste the job description to compare required skills, tools, and responsibilities."
               />
             </label>
+
+            <button className="secondary-button" type="button" onClick={loadSampleAnalysis}>
+              <Sparkles size={18} />
+              Load sample resume
+            </button>
 
             {error && (
               <div className="error">

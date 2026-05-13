@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 
 import java.time.Instant;
 
@@ -34,6 +35,14 @@ public class ApiExceptionHandler {
                 .map(violation -> violation.getMessage() == null ? "Invalid request" : violation.getMessage())
                 .orElse("Invalid request");
         return error(HttpStatus.BAD_REQUEST, message);
+    }
+
+    @ExceptionHandler(MethodArgumentConversionNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleConversion(MethodArgumentConversionNotSupportedException exception) {
+        return error(
+                HttpStatus.BAD_REQUEST,
+                "Invalid multipart form fields. Send resume as a file and jobDescription as text."
+        );
     }
 
     @ExceptionHandler(Exception.class)

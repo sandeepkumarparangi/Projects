@@ -104,6 +104,32 @@ Deployment workflows are included:
 For GitHub Pages, set repository variable `VITE_API_BASE_URL` to your deployed backend URL, for example `https://your-api.example.com`.
 For OpenAI in production, store `OPENAI_API_KEY` as a secret in the platform where the Spring Boot backend runs. Do not put it in frontend variables.
 
+## Public Web Application
+
+GitHub Pages can publish the React frontend at:
+
+```text
+https://sandeepkumarparangi.github.io/Projects/
+```
+
+The Spring Boot backend cannot run on GitHub Pages because Pages only serves static files. To make the full AI analyzer public:
+
+1. Deploy the Spring Boot backend Docker image to a backend host such as Render, Railway, Fly.io, AWS, GCP, or Azure.
+2. Add `OPENAI_API_KEY` as a backend secret on that host.
+3. Set the backend environment variable `FRONTEND_ORIGIN=https://sandeepkumarparangi.github.io`.
+4. Set the GitHub repository variable `VITE_API_BASE_URL` to the public backend URL, for example `https://ai-resume-analyzer-api.example.com`.
+5. Push to `main` or manually run **Deploy frontend to GitHub Pages** from the GitHub Actions tab.
+
+For local verification, use the sample files:
+
+```bash
+curl -X POST http://localhost:8080/api/resumes/analyze \
+  -F "resume=@examples/sample-resume.txt" \
+  -F "jobDescription=<examples/sample-job-description.txt"
+```
+
+Expected demo result without an OpenAI key: `atsScore` around `92`, source `local`, and a diagnostic telling you to add `OPENAI_API_KEY` for deeper AI recommendations.
+
 Before pushing to GitHub for the first time:
 
 ```bash
