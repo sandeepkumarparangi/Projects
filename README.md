@@ -30,7 +30,7 @@ Copy `.env.example` values into your shell or IDE run configuration.
 export OPENAI_API_KEY=sk-your-key
 export OPENAI_MODEL=gpt-5-mini
 export OPENAI_TIMEOUT_MILLIS=4500
-export FRONTEND_ORIGIN=http://localhost:5173
+export FRONTEND_ORIGIN=http://localhost:5173,http://localhost:5175,https://sandeepkumarparangi.github.io
 export VITE_API_BASE_URL=http://localhost:8080
 ```
 
@@ -128,7 +128,29 @@ curl -X POST http://localhost:8080/api/resumes/analyze \
   -F "jobDescription=<examples/sample-job-description.txt"
 ```
 
-Expected demo result without an OpenAI key: `atsScore` around `92`, source `local`, and a diagnostic telling you to add `OPENAI_API_KEY` for deeper AI recommendations.
+Expected demo result without an OpenAI key:
+
+- `atsScore`: `92`
+- `verdict`: `Strong ATS match`
+- `analysisSource`: `local`
+- `missingKeywords`: `postgresql`, `observability`, `cloud`, `oauth`, `performance`
+- `diagnostic`: `OPENAI_API_KEY is not configured; using local analyzer.`
+
+The React app also includes a **Use sample resume and job** button. Click it, then click **Analyze resume** to demo the full upload-to-results flow in the browser.
+
+## Step-by-step deployment
+
+1. Push this project to GitHub.
+2. In GitHub, open **Settings > Pages** and enable Pages from the `gh-pages` branch after the first deployment run.
+3. Open **Settings > Secrets and variables > Actions > Variables**.
+4. Add `VITE_API_BASE_URL` with your public Spring Boot backend URL.
+5. Open **Actions > Deploy frontend to GitHub Pages** and run the workflow.
+6. Open **Actions > Build and publish containers** to publish Docker images to GitHub Container Registry.
+7. Deploy the backend image to a Java/Docker host such as Render, Railway, Fly.io, AWS, GCP, or Azure.
+8. Add `OPENAI_API_KEY` as a backend secret on that host.
+9. Set backend `FRONTEND_ORIGIN` to `https://sandeepkumarparangi.github.io`.
+
+GitHub Pages can host the React frontend publicly. The Spring Boot + OpenAI backend must run on a backend host because GitHub Pages only serves static files.
 
 Before pushing to GitHub for the first time:
 

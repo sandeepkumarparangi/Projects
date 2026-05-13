@@ -84,7 +84,11 @@ function App() {
       setAnalysis(payload);
       setElapsedMs(Math.round(performance.now() - startedAt));
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Analysis failed.');
+      if (caught instanceof TypeError) {
+        setError('Cannot reach the backend API. Make sure Spring Boot is running and VITE_API_BASE_URL points to it.');
+      } else {
+        setError(caught instanceof Error ? caught.message : 'Analysis failed.');
+      }
     } finally {
       setLoading(false);
     }
@@ -135,9 +139,9 @@ function App() {
               />
             </label>
 
-            <button className="secondary-button" type="button" onClick={loadSampleAnalysis}>
+            <button className="secondary-button" type="button" onClick={loadSampleAnalysis} disabled={loading}>
               <Sparkles size={18} />
-              Load sample resume
+              Use sample resume and job
             </button>
 
             {error && (
