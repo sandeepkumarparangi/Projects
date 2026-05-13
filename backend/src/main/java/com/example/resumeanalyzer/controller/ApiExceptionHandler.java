@@ -2,6 +2,7 @@ package com.example.resumeanalyzer.controller;
 
 import com.example.resumeanalyzer.dto.ErrorResponse;
 import com.example.resumeanalyzer.service.ResumeAnalysisException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -22,6 +23,15 @@ public class ApiExceptionHandler {
         String message = exception.getBindingResult().getAllErrors().stream()
                 .findFirst()
                 .map(error -> error.getDefaultMessage() == null ? "Invalid request" : error.getDefaultMessage())
+                .orElse("Invalid request");
+        return error(HttpStatus.BAD_REQUEST, message);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException exception) {
+        String message = exception.getConstraintViolations().stream()
+                .findFirst()
+                .map(violation -> violation.getMessage() == null ? "Invalid request" : violation.getMessage())
                 .orElse("Invalid request");
         return error(HttpStatus.BAD_REQUEST, message);
     }

@@ -1,0 +1,4 @@
+We are hiring a Full Stack Java Developer to build APIs and internal dashboards.
+The role needs Java, Spring Boot, React, TypeScript, REST APIs, SQL, Docker,
+GitHub Actions, cloud deployment experience, testing, and secure coding practices.
+Nice to have: observability, PostgreSQL, OAuth, and performance tuning.

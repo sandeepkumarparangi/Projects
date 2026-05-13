@@ -67,7 +67,8 @@ public class OpenAiResumeAnalyzer {
                     "instructions", """
                             You are a fast ATS resume reviewer. Return compact valid JSON only.
                             Keep each array to 3-5 practical items. Score keyword alignment,
-                            clarity, measurable impact, formatting, and role fit.
+                            clarity, measurable impact, formatting, and role fit. atsScore must
+                            be an integer from 0 to 100.
                             """,
                     "input", """
                             Resume:
@@ -107,8 +108,9 @@ public class OpenAiResumeAnalyzer {
             }
 
             JsonNode json = objectMapper.readTree(outputText);
+            int atsScore = Math.max(0, Math.min(100, json.path("atsScore").asInt(0)));
             AnalyzeResumeResponse analysis = new AnalyzeResumeResponse(
-                    json.path("atsScore").asInt(0),
+                    atsScore,
                     json.path("verdict").asText("Analysis complete"),
                     strings(json.path("strengths")),
                     strings(json.path("improvements")),
@@ -169,7 +171,7 @@ public class OpenAiResumeAnalyzer {
                                 "missingKeywords", "suggestedKeywords", "formattingTips", "summary"
                         ),
                         "properties", Map.of(
-                                "atsScore", Map.of("type", "integer", "minimum", 0, "maximum", 100),
+                                "atsScore", Map.of("type", "integer"),
                                 "verdict", Map.of("type", "string"),
                                 "strengths", stringArray,
                                 "improvements", stringArray,

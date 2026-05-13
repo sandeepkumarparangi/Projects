@@ -4,6 +4,7 @@ import com.example.resumeanalyzer.dto.AnalyzeResumeResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -16,10 +17,22 @@ public class ResumeHeuristicAnalyzer {
             "java", "spring boot", "react", "sql", "api", "rest", "microservices",
             "aws", "docker", "kubernetes", "ci/cd", "testing", "agile"
     );
+    private static final List<String> ROLE_KEYWORDS = List.of(
+            "typescript", "postgresql", "mongodb", "security", "observability", "cloud",
+            "github actions", "junit", "oauth", "kafka", "redis", "terraform", "linux",
+            "html", "css", "javascript", "node", "performance", "accessibility"
+    );
     private static final List<String> ACTION_VERBS = List.of(
             "built", "created", "delivered", "improved", "reduced", "increased", "automated", "designed"
     );
     private static final Pattern METRIC_PATTERN = Pattern.compile("(\\d+%|\\$\\d+|\\d+x|\\d+\\+)");
+    private static final Pattern SPLIT_PATTERN = Pattern.compile("[^a-z0-9+#./-]+");
+    private static final Set<String> STOP_WORDS = Set.of(
+            "and", "the", "for", "with", "from", "that", "this", "are", "you", "our",
+            "will", "have", "has", "using", "into", "your", "their", "they", "job",
+            "role", "team", "work", "build", "develop", "candidate", "experience",
+            "hiring", "looking", "needs", "nice", "internal"
+    );
 
     public AnalyzeResumeResponse analyze(String resumeText, String jobDescription) {
         String normalizedResume = resumeText.toLowerCase(Locale.ROOT);
@@ -56,22 +69,24 @@ public class ResumeHeuristicAnalyzer {
             improvements.add("Add more role-specific detail; the resume text looks brief for an ATS scan.");
         }
 
-        Set<String> suggestedKeywords = new LinkedHashSet<>(CORE_KEYWORDS);
+        Set<String> suggestedKeywords = new LinkedHashSet<>();
         Set<String> missingKeywords = new LinkedHashSet<>();
         if (!normalizedJob.isBlank()) {
             extractImportantTerms(normalizedJob).forEach(term -> {
                 suggestedKeywords.add(term);
-                if (!normalizedResume.contains(term)) {
+                if (!isTermPresent(normalizedResume, term)) {
                     missingKeywords.add(term);
                 }
             });
-            score += Math.max(0, 13 - missingKeywords.size());
+            int matchedKeywords = Math.max(0, suggestedKeywords.size() - missingKeywords.size());
+            score += Math.min(16, matchedKeywords * 2);
         }
+        suggestedKeywords.addAll(CORE_KEYWORDS);
 
         formattingTips.add("Keep layout simple: avoid text boxes, icons-as-labels, tables for core experience, and tiny fonts.");
         formattingTips.add("Mirror the job description wording naturally where your experience supports it.");
 
-        int boundedScore = Math.max(0, Math.min(100, score));
+        int boundedScore = Math.max(0, Math.min(missingKeywords.isEmpty() ? 100 : 92, score));
         String verdict = boundedScore >= 80 ? "Strong ATS match"
                 : boundedScore >= 65 ? "Good foundation"
                 : "Needs targeted improvement";
@@ -95,12 +110,25 @@ public class ResumeHeuristicAnalyzer {
         return terms.stream().anyMatch(text::contains);
     }
 
+    private boolean isTermPresent(String resumeText, String term) {
+        if (resumeText.contains(term)) {
+            return true;
+        }
+        return term.endsWith("s") && term.length() > 3 && resumeText.contains(term.substring(0, term.length() - 1));
+    }
+
     private Set<String> extractImportantTerms(String text) {
         Set<String> terms = new LinkedHashSet<>();
         CORE_KEYWORDS.stream().filter(text::contains).forEach(terms::add);
-        List.of("leadership", "cloud", "security", "observability", "postgresql", "mongodb", "typescript")
-                .stream()
-                .filter(text::contains)
+        ROLE_KEYWORDS.stream().filter(text::contains).forEach(terms::add);
+        Arrays.stream(SPLIT_PATTERN.split(text))
+                .map(String::trim)
+                .map(term -> term.replaceAll("^[^a-z0-9+#]+|[^a-z0-9+#]+$", ""))
+                .filter(term -> term.length() >= 4)
+                .filter(term -> !STOP_WORDS.contains(term))
+                .filter(term -> !term.matches("\\d+"))
+                .filter(term -> !term.endsWith("ing"))
+                .limit(12)
                 .forEach(terms::add);
         return terms;
     }
