@@ -103,6 +103,7 @@ Deployment workflows are included:
 
 For GitHub Pages, set repository variable `VITE_API_BASE_URL` to your deployed backend URL, for example `https://your-api.example.com`.
 For OpenAI in production, store `OPENAI_API_KEY` as a secret in the platform where the Spring Boot backend runs. Do not put it in frontend variables.
+If `VITE_API_BASE_URL` is not configured yet, the public frontend can still run the included TXT sample through a browser demo analyzer so the page does not look broken while the backend is being deployed.
 
 ## Public Web Application
 
@@ -116,9 +117,10 @@ The Spring Boot backend cannot run on GitHub Pages because Pages only serves sta
 
 1. Deploy the Spring Boot backend Docker image to a backend host such as Render, Railway, Fly.io, AWS, GCP, or Azure.
 2. Add `OPENAI_API_KEY` as a backend secret on that host.
-3. Set the backend environment variable `FRONTEND_ORIGIN=https://sandeepkumarparangi.github.io`.
+3. Set the backend environment variable `FRONTEND_ORIGIN=https://sandeepkumarparangi.github.io,https://sandeepkumarparangi.github.io/Projects`.
 4. Set the GitHub repository variable `VITE_API_BASE_URL` to the public backend URL, for example `https://ai-resume-analyzer-api.example.com`.
-5. Push to `main` or manually run **Deploy frontend to GitHub Pages** from the GitHub Actions tab.
+5. In GitHub, open **Settings > Pages** and set Source to **GitHub Actions**.
+6. Push to `main` or manually run **Deploy frontend to GitHub Pages** from the GitHub Actions tab.
 
 For local verification, use the sample files:
 
@@ -141,7 +143,7 @@ The React app also includes a **Use sample resume and job** button. Click it, th
 ## Step-by-step deployment
 
 1. Push this project to GitHub.
-2. In GitHub, open **Settings > Pages** and enable Pages from the `gh-pages` branch after the first deployment run.
+2. In GitHub, open **Settings > Pages** and set Source to **GitHub Actions**.
 3. Open **Settings > Secrets and variables > Actions > Variables**.
 4. Add `VITE_API_BASE_URL` with your public Spring Boot backend URL.
 5. Open **Actions > Deploy frontend to GitHub Pages** and run the workflow.

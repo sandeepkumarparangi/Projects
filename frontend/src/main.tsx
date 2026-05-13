@@ -84,10 +84,26 @@ function App() {
       setAnalysis(payload);
       setElapsedMs(Math.round(performance.now() - startedAt));
     } catch (caught) {
-      if (caught instanceof TypeError) {
-        setError('Cannot reach the backend API. Make sure Spring Boot is running and VITE_API_BASE_URL points to it.');
-      } else {
-        setError(caught instanceof Error ? caught.message : 'Analysis failed.');
+      try {
+        const resumeText = await readTextResume(resume);
+        const fallback = analyzeInBrowser(resumeText, jobDescription);
+        const message =
+          caught instanceof TypeError
+            ? 'Cannot reach the backend API.'
+            : caught instanceof Error
+              ? caught.message
+              : 'Backend analysis failed.';
+        setAnalysis({
+          ...fallback,
+          diagnostic: `${message} Showing browser demo analysis. Connect VITE_API_BASE_URL to a deployed Spring Boot backend for OpenAI-powered public results.`,
+        });
+        setElapsedMs(Math.round(performance.now() - startedAt));
+      } catch (fallbackError) {
+        setError(
+          fallbackError instanceof Error
+            ? fallbackError.message
+            : 'Analysis failed. Check that the backend is running and reachable.',
+        );
       }
     } finally {
       setLoading(false);
@@ -195,6 +211,163 @@ function App() {
       </section>
     </main>
   );
+}
+
+async function readTextResume(file: File) {
+  if (file.type.includes('text') || file.name.toLowerCase().endsWith('.txt')) {
+    return file.text();
+  }
+  throw new Error('Backend is unavailable. Browser demo mode can only analyze TXT resumes.');
+}
+
+function analyzeInBrowser(resumeText: string, jobDescription: string): Analysis {
+  const coreKeywords = [
+    'java',
+    'spring boot',
+    'react',
+    'sql',
+    'api',
+    'rest',
+    'microservices',
+    'aws',
+    'docker',
+    'kubernetes',
+    'ci/cd',
+    'testing',
+    'agile',
+  ];
+  const roleKeywords = [
+    'typescript',
+    'postgresql',
+    'mongodb',
+    'security',
+    'observability',
+    'cloud',
+    'github actions',
+    'junit',
+    'oauth',
+    'kafka',
+    'redis',
+    'terraform',
+    'linux',
+    'html',
+    'css',
+    'javascript',
+    'node',
+    'performance',
+    'accessibility',
+  ];
+  const actionVerbs = ['built', 'created', 'delivered', 'improved', 'reduced', 'increased', 'automated', 'designed'];
+  const stopWords = new Set([
+    'and',
+    'the',
+    'for',
+    'with',
+    'from',
+    'that',
+    'this',
+    'are',
+    'you',
+    'our',
+    'will',
+    'have',
+    'has',
+    'using',
+    'into',
+    'your',
+    'their',
+    'they',
+    'job',
+    'role',
+    'team',
+    'work',
+    'build',
+    'develop',
+    'candidate',
+    'experience',
+    'hiring',
+    'looking',
+    'needs',
+    'nice',
+    'internal',
+  ]);
+
+  const normalizedResume = resumeText.toLowerCase();
+  const normalizedJob = jobDescription.toLowerCase();
+  const strengths: string[] = [];
+  const improvements: string[] = [];
+  const formattingTips: string[] = [];
+  let score = 45;
+
+  if (coreKeywords.some((term) => normalizedResume.includes(term))) {
+    score += 12;
+    strengths.push('Includes technical keywords that ATS systems commonly parse.');
+  }
+  if (actionVerbs.some((term) => normalizedResume.includes(term))) {
+    score += 10;
+    strengths.push('Uses action-oriented language in experience bullets.');
+  } else {
+    improvements.push('Start more bullets with action verbs such as built, automated, improved, or delivered.');
+  }
+  if (/(\d+%|\$\d+|\d+x|\d+\+)/.test(normalizedResume)) {
+    score += 12;
+    strengths.push('Mentions measurable impact, which helps recruiters compare outcomes.');
+  } else {
+    improvements.push('Add metrics like latency reduced, revenue supported, users served, or defect reduction.');
+  }
+  if (normalizedResume.includes('experience') && normalizedResume.includes('skills')) {
+    score += 8;
+    strengths.push('Has recognizable sections for experience and skills.');
+  } else {
+    formattingTips.push('Use clear ATS-friendly headings: Summary, Skills, Experience, Projects, Education.');
+  }
+  if (resumeText.length < 1800) {
+    improvements.push('Add more role-specific detail; the resume text looks brief for an ATS scan.');
+  }
+
+  const suggestedKeywords = new Set<string>();
+  const missingKeywords = new Set<string>();
+  [...coreKeywords, ...roleKeywords].filter((term) => normalizedJob.includes(term)).forEach((term) => suggestedKeywords.add(term));
+  normalizedJob
+    .split(/[^a-z0-9+#./-]+/)
+    .map((term) => term.trim().replace(/^[^a-z0-9+#]+|[^a-z0-9+#]+$/g, ''))
+    .filter((term) => term.length >= 4)
+    .filter((term) => !stopWords.has(term))
+    .filter((term) => !/^\d+$/.test(term))
+    .filter((term) => !term.endsWith('ing'))
+    .slice(0, 12)
+    .forEach((term) => suggestedKeywords.add(term));
+
+  suggestedKeywords.forEach((term) => {
+    const singular = term.endsWith('s') && term.length > 3 ? term.slice(0, -1) : term;
+    if (!normalizedResume.includes(term) && !normalizedResume.includes(singular)) {
+      missingKeywords.add(term);
+    }
+  });
+  coreKeywords.forEach((term) => suggestedKeywords.add(term));
+
+  const matchedKeywords = Math.max(0, suggestedKeywords.size - missingKeywords.size);
+  score += Math.min(16, matchedKeywords * 2);
+
+  formattingTips.push('Keep layout simple: avoid text boxes, icons-as-labels, tables for core experience, and tiny fonts.');
+  formattingTips.push('Mirror the job description wording naturally where your experience supports it.');
+
+  const atsScore = Math.max(0, Math.min(missingKeywords.size === 0 ? 100 : 92, score));
+  const verdict = atsScore >= 80 ? 'Strong ATS match' : atsScore >= 65 ? 'Good foundation' : 'Needs targeted improvement';
+
+  return {
+    atsScore,
+    verdict,
+    strengths: strengths.length ? strengths : ['Resume has readable text and can be parsed by the analyzer.'],
+    improvements: improvements.length ? improvements : ['Tune keywords for the exact job description before applying.'],
+    missingKeywords: [...missingKeywords],
+    suggestedKeywords: [...suggestedKeywords].slice(0, 14),
+    formattingTips,
+    summary: 'Browser demo analysis completed. Deploy the Spring Boot backend for OpenAI-powered review.',
+    aiPowered: false,
+    analysisSource: 'browser-demo',
+    diagnostic: null,
+  };
 }
 
 function ResultList({ title, items, positive = false }: { title: string; items: string[]; positive?: boolean }) {
