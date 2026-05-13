@@ -1,0 +1,10 @@
+Summary
+Full stack Java developer with Spring Boot, React, REST API, SQL, Docker, and CI/CD experience.
+
+Experience
+Built Spring Boot microservices and React dashboards for internal operations.
+Improved API response time by 35% through query optimization and caching.
+Automated deployments with GitHub Actions and Docker.
+
+Skills
+Java, Spring Boot, React, TypeScript, SQL, REST, Docker, testing, agile

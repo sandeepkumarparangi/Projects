@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
+app:
+  frontend-origin: ${FRONTEND_ORIGIN:http://localhost:5173}
+  openai:
+    api-key: ${OPENAI_API_KEY:}
+    model: ${OPENAI_MODEL:gpt-5-mini}
+    base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+    timeout-millis: ${OPENAI_TIMEOUT_MILLIS:4500}
+    max-resume-chars: ${OPENAI_MAX_RESUME_CHARS:7000}
+    max-job-description-chars: ${OPENAI_MAX_JOB_DESCRIPTION_CHARS:3500}
+    max-output-tokens: ${OPENAI_MAX_OUTPUT_TOKENS:900}
