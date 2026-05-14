@@ -119,7 +119,7 @@ The Spring Boot backend cannot run on GitHub Pages because Pages only serves sta
 2. Add `OPENAI_API_KEY` as a backend secret on that host.
 3. Set the backend environment variable `FRONTEND_ORIGIN=https://sandeepkumarparangi.github.io,https://sandeepkumarparangi.github.io/Projects`.
 4. Set the GitHub repository variable `VITE_API_BASE_URL` to the public backend URL, for example `https://ai-resume-analyzer-api.example.com`.
-5. In GitHub, open **Settings > Pages** and set Source to **Deploy from a branch**, then select the `gh-pages` branch.
+5. In GitHub, open **Settings > Pages** and set Source to **GitHub Actions**.
 6. Push to `main` or manually run **Deploy frontend to GitHub Pages** from the GitHub Actions tab.
 
 For local verification, use the sample files:
@@ -143,7 +143,7 @@ The React app also includes a **Use sample resume and job** button. Click it, th
 ## Step-by-step deployment
 
 1. Push this project to GitHub.
-2. In GitHub, open **Settings > Pages** and set Source to **Deploy from a branch**, then select the `gh-pages` branch.
+2. In GitHub, open **Settings > Pages** and set Source to **GitHub Actions**.
 3. Open **Settings > Secrets and variables > Actions > Variables**.
 4. Add `VITE_API_BASE_URL` with your public Spring Boot backend URL.
 5. Open **Actions > Deploy frontend to GitHub Pages** and run the workflow.
