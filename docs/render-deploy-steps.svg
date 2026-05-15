@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#f6f8fb"/>
+  <text x="60" y="70" font-family="Arial, sans-serif" font-size="36" font-weight="700" fill="#172033">Render backend deployment steps</text>
+  <text x="60" y="108" font-family="Arial, sans-serif" font-size="18" fill="#526072">Use these exact settings to avoid the /backend/src Docker error.</text>
+
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#162033" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .card { fill: #ffffff; stroke: #d8dee9; stroke-width: 1.5; filter: url(#shadow); }
+      .step { font: 700 16px Arial, sans-serif; fill: #ffffff; }
+      .title { font: 700 22px Arial, sans-serif; fill: #172033; }
+      .body { font: 16px Arial, sans-serif; fill: #526072; }
+      .mono { font: 15px Menlo, Consolas, monospace; fill: #1f2937; }
+      .pill { fill: #136f63; }
+      .arrow { stroke: #8794a8; stroke-width: 3; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#8794a8"/>
+    </marker>
+  </defs>
+
+  <g transform="translate(60 150)">
+    <rect class="card" width="500" height="150" rx="10"/>
+    <circle cx="38" cy="38" r="22" class="pill"/>
+    <text x="32" y="44" class="step">1</text>
+    <text x="76" y="43" class="title">GitHub repo is ready</text>
+    <text x="76" y="78" class="body">Latest commit pushed to main:</text>
+    <text x="76" y="108" class="mono">66c992b Add Render backend deployment config</text>
+  </g>
+
+  <path class="arrow" d="M585 225 H650"/>
+
+  <g transform="translate(680 150)">
+    <rect class="card" width="460" height="150" rx="10"/>
+    <circle cx="38" cy="38" r="22" class="pill"/>
+    <text x="32" y="44" class="step">2</text>
+    <text x="76" y="43" class="title">Render: New Blueprint</text>
+    <text x="76" y="78" class="body">Open Render Dashboard, then choose:</text>
+    <text x="76" y="108" class="mono">New +  >  Blueprint</text>
+  </g>
+
+  <path class="arrow" d="M910 325 V385"/>
+
+  <g transform="translate(680 410)">
+    <rect class="card" width="460" height="190" rx="10"/>
+    <circle cx="38" cy="38" r="22" class="pill"/>
+    <text x="32" y="44" class="step">3</text>
+    <text x="76" y="43" class="title">Connect repository</text>
+    <text x="76" y="78" class="body">Select this repo and branch:</text>
+    <text x="76" y="108" class="mono">sandeepkumarparangi/Projects</text>
+    <text x="76" y="138" class="mono">branch: main</text>
+    <text x="76" y="168" class="mono">Blueprint path: render.yaml</text>
+  </g>
+
+  <path class="arrow" d="M650 505 H585"/>
+
+  <g transform="translate(60 410)">
+    <rect class="card" width="500" height="190" rx="10"/>
+    <circle cx="38" cy="38" r="22" class="pill"/>
+    <text x="32" y="44" class="step">4</text>
+    <text x="76" y="43" class="title">Add secret env var</text>
+    <text x="76" y="78" class="body">Render will ask for the secret value:</text>
+    <text x="76" y="108" class="mono">OPENAI_API_KEY = your real key</text>
+    <text x="76" y="138" class="body">The blueprint already sets:</text>
+    <text x="76" y="168" class="mono">Dockerfile: backend/Dockerfile</text>
+  </g>
+
+  <path class="arrow" d="M310 385 V325"/>
+
+  <g transform="translate(350 650)">
+    <rect x="0" y="-35" width="500" height="78" rx="10" fill="#172033"/>
+    <text x="28" y="-5" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff">5. Click Deploy Blueprint</text>
+    <text x="28" y="25" font-family="Arial, sans-serif" font-size="16" fill="#cad5e5">Then test: https://your-render-url.onrender.com/api/health</text>
+  </g>
+</svg>
